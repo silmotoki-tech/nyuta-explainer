@@ -17,7 +17,14 @@ export default function PdfViewer({ material, onClose }) {
     setError(false)
 
     pdfjsLib
-      .getDocument({ url: material.fileUrl })
+      // Firebase StorageのバケットはデフォルトでCORSのプリフライト(Rangeヘッダー付き
+      // リクエスト)に対応していないため、range/streamを無効化して単純な一括GETに
+      // する。どのみちService Workerで丸ごとキャッシュするのでこれで問題ない。
+      .getDocument({
+        url: material.fileUrl,
+        disableRange: true,
+        disableStream: true,
+      })
       .promise.then((pdf) => {
         if (cancelled) return
         pdfRef.current = pdf
