@@ -1,0 +1,42 @@
+@import 'tailwindcss';
+
+/* Brand palette shared with nyuta-portal / nyuta-karte-log / 承諾書アプリ */
+:root {
+  --brand-green: #6fb82b;
+  --brand-brown: #6b4834;
+  --brand-cream: #fbf8f2;
+  --brand-ink: #33291f;
+  --brand-mustard: #d9a441;
+}
+
+@theme {
+  --color-brand-green: var(--brand-green);
+  --color-brand-brown: var(--brand-brown);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-mustard: var(--brand-mustard);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--brand-cream);
+  color: var(--brand-ink);
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Hiragino Kaku Gothic ProN',
+    'Yu Gothic', sans-serif;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Text inputs (title, PIN) should still allow normal selection/typing */
+input,
+textarea {
+  user-select: text;
+}
