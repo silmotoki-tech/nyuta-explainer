@@ -17,7 +17,7 @@ export default function PdfViewer({ material, onClose }) {
     setError(false)
 
     pdfjsLib
-      .getDocument(material.fileUrl)
+      .getDocument({ url: material.fileUrl })
       .promise.then((pdf) => {
         if (cancelled) return
         pdfRef.current = pdf
