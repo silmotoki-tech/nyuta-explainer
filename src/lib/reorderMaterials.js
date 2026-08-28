@@ -6,7 +6,10 @@ export async function persistMaterialOrder(materialsInNewOrder) {
   const batch = writeBatch(db)
   materialsInNewOrder.forEach((material, index) => {
     if (material.order !== index) {
-      batch.update(doc(db, 'materials', material.id), { order: index })
+      batch.update(
+        doc(db, 'categories', material.categoryId, 'materials', material.id),
+        { order: index },
+      )
     }
   })
   await batch.commit()

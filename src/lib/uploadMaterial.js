@@ -6,7 +6,6 @@ import {
   limit,
   query,
   serverTimestamp,
-  where,
 } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { db, storage } from '../firebase'
@@ -14,8 +13,7 @@ import { generateThumbnailFromPdf } from './pdfThumbnail'
 
 async function getNextOrder(categoryId) {
   const q = query(
-    collection(db, 'materials'),
-    where('categoryId', '==', categoryId),
+    collection(db, 'categories', categoryId, 'materials'),
     orderBy('order', 'desc'),
     limit(1),
   )
@@ -48,8 +46,7 @@ export async function uploadPdfMaterial({ file, categoryId, title }) {
     getDownloadURL(thumbRef),
   ])
 
-  await addDoc(collection(db, 'materials'), {
-    categoryId,
+  await addDoc(collection(db, 'categories', categoryId, 'materials'), {
     title,
     type: 'pdf',
     storagePath: pdfPath,

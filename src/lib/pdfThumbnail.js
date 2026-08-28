@@ -22,7 +22,14 @@ export async function generateThumbnailFromPdf(file, { maxWidth = 480 } = {}) {
     canvas.toBlob(resolve, 'image/jpeg', 0.82),
   )
 
-  await pdf.destroy()
+  // 後片付け(メモリ解放)は失敗してもアップロード自体には影響させない
+  try {
+    if (typeof pdf.destroy === 'function') {
+      await pdf.destroy()
+    }
+  } catch (err) {
+    console.warn('PDFの後片付けに失敗しました(処理は続行します)', err)
+  }
 
   return blob
 }

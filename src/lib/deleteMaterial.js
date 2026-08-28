@@ -7,5 +7,7 @@ export async function deleteMaterial(material) {
     deleteObject(ref(storage, material.storagePath)),
     deleteObject(ref(storage, material.thumbnailPath)),
   ])
-  await deleteDoc(doc(db, 'materials', material.id))
+  await deleteDoc(
+    doc(db, 'categories', material.categoryId, 'materials', material.id),
+  )
 }

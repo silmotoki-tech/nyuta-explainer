@@ -18,7 +18,7 @@
 2. 左メニュー「Firestore Database」→ データベースを作成（本番モード、リージョンは他のクリニックアプリと同じものを選ぶと良い）。
 3. 左メニュー「Storage」→ 開始する（デフォルト設定でOK）。
 4. 左メニュー「Authentication」→ Sign-in method で「メール/パスワード」を有効化 → Users タブで院内共通アカウント（例: `staff@nyuta-ahp.com` のような、実在しなくてもよい専用メールアドレス＋任意のパスワード）を1つ作成する。これが `.env` の `VITE_SHARED_ACCOUNT_EMAIL` / `VITE_SHARED_ACCOUNT_PASSWORD` になる。
-5. Firestore の「ルール」タブに、このリポジトリの `firestore.rules` の内容を貼り付けて公開する。
+5. Firestore の「ルール」タブに、このリポジトリの `firestore.rules` の内容を貼り付けて公開する。（資料は `categories/{categoryId}/materials` というサブコレクションに保存する構成にしている。複合インデックスが不要になるための設計。）
 6. Storage の「ルール」タブに、このリポジトリの `storage.rules` の内容を貼り付けて公開する。
 7. 「プロジェクトの設定」→「全般」→ 一番下の「マイアプリ」でウェブアプリを追加し、表示される設定値（apiKey, authDomain, projectId, storageBucket, messagingSenderId, appId）を控える。
 
