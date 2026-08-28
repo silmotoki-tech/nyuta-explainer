@@ -36,9 +36,20 @@ export default function PdfViewer({ material, onClose }) {
         if (!cancelled) setError(true)
       })
 
-    return () => {
+        return () => {
       cancelled = true
-      pdfRef.current?.destroy()
+      // 後片付け(メモリ解放)が失敗しても、画面が壊れないようにする。
+      // (destroyが無いpdf.jsのバージョン/設定があるため)
+      try {
+        if (
+          pdfRef.current &&
+          typeof pdfRef.current.destroy === 'function'
+        ) {
+          pdfRef.current.destroy()
+        }
+      } catch (err) {
+        console.warn('PDFの後片付けに失敗しました(処理は続行します)', err)
+      }
       pdfRef.current = null
     }
   }, [material.fileUrl])
