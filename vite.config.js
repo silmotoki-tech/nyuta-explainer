@@ -47,21 +47,10 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
-          {
-            // Firestore metadata: network-first so new/reordered materials
-            // show up immediately, but still usable if a request is slow.
-            urlPattern: /^https:\/\/firestore\.googleapis\.com\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'firestore-cache',
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 200,
-                maxAgeSeconds: 60 * 60 * 24,
-              },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
+          // Firestoreへの通信はService Workerでは一切横取りしない。
+          // Firestoreのリアルタイム購読(onSnapshot)は持続的なストリーミング
+          // 通信を使っており、Service Workerがこれを横取りすると
+          // 「保存はできるが画面にリアルタイムで反映されない」問題が起きるため。
         ],
       },
     }),
