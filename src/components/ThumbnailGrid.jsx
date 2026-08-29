@@ -1,78 +1,65 @@
-import { useState } from 'react'
-import {
-  DndContext,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
-import {
-  SortableContext,
-  arrayMove,
-  rectSortingStrategy,
-} from '@dnd-kit/sortable'
-import SortableThumbnail from './SortableThumbnail'
-import { persistMaterialOrder } from '../lib/reorderMaterials'
-import { deleteMaterial } from '../lib/deleteMaterial'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
-// iPad横向きで 横4×縦3 を基準にした、縦スクロールのサムネイルグリッド。
-export default function ThumbnailGrid({ materials, editMode, onOpen }) {
-  const [items, setItems] = useState(materials)
+export default function SortableThumbnail({
+  material,
+  editMode,
+  onOpen,
+  onDelete,
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: material.id, disabled: !editMode })
 
-  // Firestoreからの最新スナップショットと同期する(自分の並び替え中は除く)
-  if (
-    !editMode &&
-    (items.length !== materials.length ||
-      items.some((m, i) => m.id !== materials[i]?.id))
-  ) {
-    setItems(materials)
-  }
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-  )
-
-  const handleDragEnd = (event) => {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    const oldIndex = items.findIndex((m) => m.id === active.id)
-    const newIndex = items.findIndex((m) => m.id === over.id)
-    const reordered = arrayMove(items, oldIndex, newIndex)
-    setItems(reordered)
-    persistMaterialOrder(reordered).catch((err) =>
-      console.error('並び替えの保存に失敗しました', err),
-    )
-  }
-
-  const handleDelete = (material) => {
-    if (!window.confirm(`「${material.title}」を削除しますか？`)) return
-    deleteMaterial(material).catch((err) =>
-      console.error('削除に失敗しました', err),
-    )
-  }
-
-  if (materials.length === 0) {
-    return (
-      <p className="mt-16 text-center text-brand-ink/50">
-        まだ資料が登録されていません。
-      </p>
-    )
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
   }
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <SortableContext items={items.map((m) => m.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-4 gap-3 p-3">
-          {items.map((material) => (
-            <SortableThumbnail
-              key={material.id}
-              material={material}
-              editMode={editMode}
-              onOpen={onOpen}
-              onDelete={handleDelete}
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...(editMode ? { ...attributes, ...listeners } : {})}
+      className="relative flex aspect-[3/4] h-[28vh] flex-col overflow-hidden rounded-2xl border border-brand-brown/10 bg-white shadow-sm"
+    >
+      <button
+        type="button"
+        onClick={() => onOpen(material)}
+        className="flex flex-1 flex-col"
+      >
+        <div className="flex-1 overflow-hidden bg-brand-cream">
+          {material.thumbnailUrl ? (
+            <img
+              src={material.thumbnailUrl}
+              alt=""
+              className="h-full w-full object-cover"
+              draggable={false}
             />
-          ))}
+          ) : (
+            <div className="flex h-full items-center justify-center text-3xl">
+              📄
+            </div>
+          )}
         </div>
-      </SortableContext>
-    </DndContext>
+        <div className="border-t border-brand-brown/10 px-2 py-2 text-center text-sm font-medium leading-tight text-brand-ink">
+          {material.title}
+        </div>
+      </button>
+
+      {editMode && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            onDelete(material)
+          }}
+          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-ink/70 text-sm text-white"
+          aria-label="削除"
+        >
+          ×
+        </button>
+      )}
+    </div>
   )
 }
