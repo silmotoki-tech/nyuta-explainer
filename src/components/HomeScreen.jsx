@@ -5,10 +5,6 @@ export default function HomeScreen({ onSelectCategory }) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8 px-8">
-      <h1 className="text-2xl font-semibold text-brand-ink">
-        説明資料をえらんでください
-      </h1>
-
       {loading && <p className="text-brand-ink/50">読み込み中...</p>}
 
       {!loading && categories.length === 0 && (
