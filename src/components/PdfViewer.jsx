@@ -116,14 +116,7 @@ export default function PdfViewer({ material, onClose }) {
         {/* 画面内ビューアはA4等の実寸を無視して画面に合わせて表示しているため、
             そのまま印刷すると用紙サイズが合わない。印刷したい時は原本のPDFを
             Safariの標準PDF表示で開いてもらい、そちらの共有→印刷を使う。 */}
-        
-          href={material.fileUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-full bg-white/10 px-4 py-1.5 text-sm"
-        >
-          🖨 印刷用に開く
-        </a>
+        <a href={material.fileUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white/10 px-4 py-1.5 text-sm">🖨 印刷用に開く</a>
       </div>
 
       <div className="relative flex-1 overflow-hidden">
