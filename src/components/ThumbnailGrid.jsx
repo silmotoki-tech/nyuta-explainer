@@ -14,7 +14,7 @@ import SortableThumbnail from './SortableThumbnail'
 import { persistMaterialOrder } from '../lib/reorderMaterials'
 import { deleteMaterial } from '../lib/deleteMaterial'
 
-// iPad横向きで 横4×縦3 を基準にした、縦スクロールのサムネイルグリッド。
+// iPad横向きで 横6×縦3 を基準にした、縦スクロールのサムネイルグリッド。
 export default function ThumbnailGrid({ materials, editMode, onOpen }) {
   const [items, setItems] = useState(materials)
 
@@ -61,7 +61,7 @@ export default function ThumbnailGrid({ materials, editMode, onOpen }) {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <SortableContext items={items.map((m) => m.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-4 gap-3 p-3 justify-items-center">
+        <div className="grid grid-cols-6 gap-3 p-3 justify-items-center">
           {items.map((material) => (
             <SortableThumbnail
               key={material.id}
