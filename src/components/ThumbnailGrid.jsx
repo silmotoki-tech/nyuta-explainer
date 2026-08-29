@@ -61,7 +61,7 @@ export default function ThumbnailGrid({ materials, editMode, onOpen }) {
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <SortableContext items={items.map((m) => m.id)} strategy={rectSortingStrategy}>
-        <div className="grid grid-cols-4 gap-4 p-4">
+        <div className="grid grid-cols-4 gap-3 p-3">
           {items.map((material) => (
             <SortableThumbnail
               key={material.id}
