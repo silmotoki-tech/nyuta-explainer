@@ -21,7 +21,7 @@ export default function SortableThumbnail({
       ref={setNodeRef}
       style={style}
       {...(editMode ? { ...attributes, ...listeners } : {})}
-      className="relative flex aspect-[3/4] flex-col overflow-hidden rounded-2xl border border-brand-brown/10 bg-white shadow-sm"
+      className="relative flex h-[28vh] flex-col overflow-hidden rounded-2xl border border-brand-brown/10 bg-white shadow-sm"
     >
       <button
         type="button"
