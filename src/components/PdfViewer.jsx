@@ -8,6 +8,7 @@ export default function PdfViewer({ material, onClose }) {
   const [numPages, setNumPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [showPrintView, setShowPrintView] = useState(false)
 
   // PDF本体は開いた瞬間だけ読み込む。一度読み込んだファイルはService Workerの
   // キャッシュ(CacheFirst)が効くので、2回目以降はほぼ通信なしで開ける。
@@ -115,9 +116,22 @@ export default function PdfViewer({ material, onClose }) {
         </span>
         {/* 画面内ビューアはA4等の実寸を無視して画面に合わせて表示しているため、
             そのまま印刷すると用紙サイズが合わない。印刷したい時は原本のPDFを
-            Safariの標準PDF表示で開いてもらい、そちらの共有→印刷を使う。 */}
-        <a href={material.fileUrl} target="_blank" rel="noopener noreferrer" className="rounded-full bg-white/10 px-4 py-1.5 text-sm">🖨 印刷用に開く</a>
+            アプリ内のオーバーレイでブラウザ標準のPDF表示に切り替えて、
+            そちらの共有→印刷を使ってもらう。別タブ/別画面には遷移しないので、
+            ブラウザの「戻る」に頼らず、自前の「閉じる」ボタンで必ずここに戻れる。 */}
+        <button type="button" onClick={() => setShowPrintView(true)} className="rounded-full bg-white/10 px-4 py-1.5 text-sm">🖨 印刷用に開く</button>
       </div>
+
+      {showPrintView && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-brand-ink">
+          <div className="flex items-center justify-between px-4 py-2 text-white">
+            <button type="button" onClick={() => setShowPrintView(false)} className="rounded-full bg-white/10 px-4 py-1.5 text-sm">閉じる</button>
+            <span className="text-sm text-white/70">{material.title}(印刷用)</span>
+            <span className="w-[4.5rem]" />
+          </div>
+          <iframe src={material.fileUrl} title={`${material.title}(印刷用)`} className="h-full w-full flex-1 border-0 bg-white" />
+        </div>
+      )}
 
       <div className="relative flex-1 overflow-hidden">
         {loading && (
