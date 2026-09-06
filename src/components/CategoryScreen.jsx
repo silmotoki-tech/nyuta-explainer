@@ -100,14 +100,14 @@ export default function CategoryScreen({
                   onClick={() => onOpenCategory(child)}
                   className={
                     isEditMode
-                      ? 'flex min-h-[6rem] w-full items-center gap-3 rounded-2xl border border-brand-brown/10 bg-white py-4 pl-5 pr-12 text-left shadow-sm transition active:scale-[0.98] active:bg-brand-green/5'
-                      : 'flex min-h-[6rem] w-full items-center gap-3 rounded-2xl border border-brand-brown/10 bg-white px-5 py-4 text-left shadow-sm transition active:scale-[0.98] active:bg-brand-green/5'
+                      ? 'flex min-h-[6rem] w-full items-center gap-3 rounded-2xl border border-brand-brown/10 bg-white py-4 pl-4 pr-12 text-left shadow-sm transition active:scale-[0.98] active:bg-brand-green/5'
+                      : 'flex min-h-[6rem] w-full items-center gap-3 rounded-2xl border border-brand-brown/10 bg-white px-4 py-4 text-left shadow-sm transition active:scale-[0.98] active:bg-brand-green/5'
                   }
                 >
                   <span className="shrink-0 text-4xl leading-none">
                     {child.icon || '📁'}
                   </span>
-                  <span className="text-lg font-medium leading-tight text-brand-ink">
+                  <span className="break-keep text-lg font-medium leading-tight text-brand-ink">
                     {child.name}
                   </span>
                 </button>
