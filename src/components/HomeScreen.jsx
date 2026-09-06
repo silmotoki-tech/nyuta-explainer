@@ -3,11 +3,15 @@ import { useCategories } from '../hooks/useCategories'
 export default function HomeScreen({ onSelectCategory }) {
   const { categories, loading } = useCategories()
 
+  // ホームに出すのは最上位のカテゴリだけ。parentId を持つものは
+  // 「診療資料 → 運動器」のような下位フォルダなので、ここには出さない。
+  const topLevel = categories.filter((category) => !category.parentId)
+
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8 px-8">
       {loading && <p className="text-brand-ink/50">読み込み中...</p>}
 
-      {!loading && categories.length === 0 && (
+      {!loading && topLevel.length === 0 && (
         <p className="text-brand-ink/50">
           カテゴリがまだ登録されていません。Firestoreの categories
           コレクションを確認してください。
@@ -15,7 +19,7 @@ export default function HomeScreen({ onSelectCategory }) {
       )}
 
       <div className="flex flex-wrap justify-center gap-6">
-        {categories.map((category) => (
+        {topLevel.map((category) => (
           <button
             key={category.id}
             type="button"

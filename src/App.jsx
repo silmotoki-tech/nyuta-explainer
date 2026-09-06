@@ -8,19 +8,28 @@ const CategoryScreen = lazy(() => import('./components/CategoryScreen'))
 const PdfViewer = lazy(() => import('./components/PdfViewer'))
 
 function App() {
-  const [category, setCategory] = useState(null)
+  // カテゴリは入れ子にできる(例: 診療資料 → 運動器 → 資料)。
+  // 「今どこを開いているか」を配列(パンくず)で持たせることで、
+  // 何階層になっても同じ仕組みで1つ上に戻れる。
+  const [path, setPath] = useState([])
   const [openMaterial, setOpenMaterial] = useState(null)
+
+  const current = path.length > 0 ? path[path.length - 1] : null
+
+  const openCategory = (category) => setPath((p) => [...p, category])
+  const goBack = () => setPath((p) => p.slice(0, -1))
 
   return (
     <EditModeProvider>
       <div className="h-full w-full">
-        {!category && <HomeScreen onSelectCategory={setCategory} />}
+        {!current && <HomeScreen onSelectCategory={openCategory} />}
 
         <Suspense fallback={null}>
-          {category && (
+          {current && (
             <CategoryScreen
-              category={category}
-              onBack={() => setCategory(null)}
+              category={current}
+              onBack={goBack}
+              onOpenCategory={openCategory}
               onOpenMaterial={setOpenMaterial}
             />
           )}
