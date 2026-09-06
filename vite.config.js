@@ -12,9 +12,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'icons.svg'],
       manifest: {
-        name: 'にゅうた 説明資料',
-        short_name: '説明資料',
-        description: '患者さん向け説明資料ビューア',
+        name: 'ライブラリ',
+        short_name: 'ライブラリ',
+        description: '院内資料のライブラリ',
         theme_color: '#6fb82b',
         background_color: '#FBF8F2',
         display: 'standalone',
