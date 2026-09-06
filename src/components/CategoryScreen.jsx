@@ -90,16 +90,24 @@ export default function CategoryScreen({
 
       <div className="flex-1 overflow-y-auto">
         {hasChildren && (
-          <div className="grid grid-cols-6 gap-3 p-3">
+          <div className="grid grid-cols-4 gap-3 p-3">
             {children.map((child) => (
               <div key={child.id} className="relative">
+                {/* 横長の帯(左にアイコン、右に名前)。高さは iPad 横向きで
+                    7行くらいが画面に収まる寸法に合わせている。 */}
                 <button
                   type="button"
                   onClick={() => onOpenCategory(child)}
-                  className="flex w-full flex-col items-center gap-2 rounded-2xl border border-brand-brown/10 bg-white px-2 py-6 shadow-sm transition active:scale-95 active:bg-brand-green/5"
+                  className={
+                    isEditMode
+                      ? 'flex min-h-[6rem] w-full items-center gap-3 rounded-2xl border border-brand-brown/10 bg-white py-4 pl-5 pr-12 text-left shadow-sm transition active:scale-[0.98] active:bg-brand-green/5'
+                      : 'flex min-h-[6rem] w-full items-center gap-3 rounded-2xl border border-brand-brown/10 bg-white px-5 py-4 text-left shadow-sm transition active:scale-[0.98] active:bg-brand-green/5'
+                  }
                 >
-                  <span className="text-4xl">{child.icon || '📁'}</span>
-                  <span className="text-center text-sm font-medium text-brand-ink">
+                  <span className="shrink-0 text-4xl leading-none">
+                    {child.icon || '📁'}
+                  </span>
+                  <span className="text-lg font-medium leading-tight text-brand-ink">
                     {child.name}
                   </span>
                 </button>
@@ -108,7 +116,7 @@ export default function CategoryScreen({
                   <button
                     type="button"
                     onClick={() => handleDeleteFolder(child)}
-                    className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-ink/70 text-sm text-white"
+                    className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full bg-brand-ink/70 text-sm text-white"
                     aria-label="フォルダを削除"
                   >
                     ×
