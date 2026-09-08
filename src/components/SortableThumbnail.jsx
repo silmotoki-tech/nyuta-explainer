@@ -6,6 +6,7 @@ export default function SortableThumbnail({
   editMode,
   onOpen,
   onDelete,
+  onMove,
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: material.id, disabled: !editMode })
@@ -48,17 +49,30 @@ export default function SortableThumbnail({
       </button>
 
       {editMode && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onDelete(material)
-          }}
-          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-ink/70 text-sm text-white"
-          aria-label="削除"
-        >
-          ×
-        </button>
+        <>
+          {/* 移動は左上、削除は右上。間違えて消さないよう離して置く。 */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onMove(material)
+            }}
+            className="absolute left-1.5 top-1.5 rounded-full bg-brand-ink/70 px-3 py-1 text-xs font-medium text-white"
+          >
+            移動
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDelete(material)
+            }}
+            className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-brand-ink/70 text-sm text-white"
+            aria-label="削除"
+          >
+            ×
+          </button>
+        </>
       )}
     </div>
   )
