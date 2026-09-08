@@ -28,9 +28,10 @@ export default function CategoryScreen({
   const children = categories.filter((c) => c.parentId === category.id)
   const hasChildren = children.length > 0
 
-  // フォルダと資料が同じ階層に混在すると探しにくいので、
-  // 空のカテゴリでだけ「どちらにするか」を選べるようにする。
-  const canAddFolder = hasChildren || materials.length === 0
+  // フォルダはいつでも作れるようにする。直下に資料が残っているカテゴリでも
+  // 最初の1個目を作れないと詰んでしまうため(以前ここを絞りすぎて詰んだ)。
+  // 一方、下位フォルダができた後は資料を直下に置かせない(必ずどれかの
+  // フォルダに入れてもらう)ので、資料の追加ボタンだけ隠す。
   const canAddMaterial = !hasChildren
 
   const handleDeleteFolder = async (folder) => {
@@ -59,7 +60,7 @@ export default function CategoryScreen({
         </h1>
 
         <div className="flex items-center gap-2">
-          {isEditMode && canAddFolder && (
+          {isEditMode && (
             <button
               type="button"
               onClick={() => setShowFolderModal(true)}
