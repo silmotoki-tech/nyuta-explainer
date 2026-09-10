@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import pdfjsLib from '../lib/pdfjsSetup'
+import { buildPrintablePdf } from '../lib/printablePdf'
 
 export default function PdfViewer({ material, onClose }) {
   const canvasRef = useRef(null)
@@ -8,7 +9,8 @@ export default function PdfViewer({ material, onClose }) {
   const [numPages, setNumPages] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [showPrintView, setShowPrintView] = useState(false)
+  const [printFile, setPrintFile] = useState(null)
+  const [printError, setPrintError] = useState('')
 
   // PDF本体は開いた瞬間だけ読み込む。一度読み込んだファイルはService Workerの
   // キャッシュ(CacheFirst)が効くので、2回目以降はほぼ通信なしで開ける。
@@ -55,6 +57,28 @@ export default function PdfViewer({ material, onClose }) {
     }
   }, [material.fileUrl])
 
+  // 印刷用のA4版PDFは、開いた時点で裏で作っておく。
+  // iOSの共有シート(navigator.share)は「ボタンを押した直後」にしか開けず、
+  // 押してから変換していると間に合わずに拒否されるため、先に用意しておく。
+  useEffect(() => {
+    let cancelled = false
+    setPrintFile(null)
+    setPrintError('')
+
+    buildPrintablePdf(material)
+      .then((file) => {
+        if (!cancelled) setPrintFile(file)
+      })
+      .catch((err) => {
+        console.error('印刷用PDFの準備に失敗しました', err)
+        if (!cancelled) setPrintError('印刷用の準備に失敗しました')
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [material])
+
   useEffect(() => {
     const pdf = pdfRef.current
     if (!pdf) return
@@ -100,6 +124,31 @@ export default function PdfViewer({ material, onClose }) {
   const goPrev = () => setPageNum((p) => Math.max(1, p - 1))
   const goNext = () => setPageNum((p) => Math.min(numPages, p + 1))
 
+  // 印刷はiOSの共有シートにPDFファイルそのものを渡す。
+  // Webページとして印刷させると、アプリの画面ごと印刷されてしまう。
+  // 共有シートを閉じればアプリに戻るので、別タブに出る必要もない。
+  const handlePrint = async () => {
+    if (!printFile) return
+    setPrintError('')
+
+    try {
+      if (navigator.canShare?.({ files: [printFile] })) {
+        await navigator.share({ files: [printFile], title: material.title })
+        return
+      }
+      // 共有シートが使えない環境(パソコンのブラウザなど)は別タブで開く。
+      // パソコンには「戻る」があるので、こちらは従来どおりで問題ない。
+      const url = URL.createObjectURL(printFile)
+      window.open(url, '_blank', 'noopener')
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
+    } catch (err) {
+      // ユーザーが共有シートを閉じただけならエラー扱いしない。
+      if (err?.name === 'AbortError') return
+      console.error('印刷に失敗しました', err)
+      setPrintError('印刷を開始できませんでした')
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-40 flex flex-col bg-brand-ink">
       <div className="flex items-center justify-between px-4 py-2 text-white">
@@ -114,24 +163,8 @@ export default function PdfViewer({ material, onClose }) {
           {material.title}
           {numPages > 0 && ` （${pageNum} / ${numPages}）`}
         </span>
-        {/* 画面内ビューアはA4等の実寸を無視して画面に合わせて表示しているため、
-            そのまま印刷すると用紙サイズが合わない。印刷したい時は原本のPDFを
-            アプリ内のオーバーレイでブラウザ標準のPDF表示に切り替えて、
-            そちらの共有→印刷を使ってもらう。別タブ/別画面には遷移しないので、
-            ブラウザの「戻る」に頼らず、自前の「閉じる」ボタンで必ずここに戻れる。 */}
-        <button type="button" onClick={() => setShowPrintView(true)} className="rounded-full bg-white/10 px-4 py-1.5 text-sm">🖨 印刷用に開く</button>
+        <button type="button" onClick={handlePrint} disabled={!printFile} className="rounded-full bg-white/10 px-4 py-1.5 text-sm disabled:opacity-40">{printError || (printFile ? '🖨 印刷' : '🖨 準備中...')}</button>
       </div>
-
-      {showPrintView && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-brand-ink">
-          <div className="flex items-center justify-between px-4 py-2 text-white">
-            <button type="button" onClick={() => setShowPrintView(false)} className="rounded-full bg-white/10 px-4 py-1.5 text-sm">閉じる</button>
-            <span className="text-sm text-white/70">{material.title}(印刷用)</span>
-            <span className="w-[4.5rem]" />
-          </div>
-          <iframe src={material.fileUrl} title={`${material.title}(印刷用)`} className="h-full w-full flex-1 border-0 bg-white" />
-        </div>
-      )}
 
       <div className="relative flex-1 overflow-hidden">
         {loading && (
