@@ -8,9 +8,15 @@ export default function MoveMaterialModal({ material, categories, onClose }) {
   // 移動先に出すのは「下位フォルダを持たないカテゴリ」だけ。
   // フォルダを持つカテゴリに資料を置くと、フォルダと資料が混在して
   // 探しにくくなるため(資料の追加ボタンを隠しているのと同じ理由)。
+  // ただし50音リスト表示のカテゴリは、フォルダと資料を混ぜて並べる
+  // 仕様なので移動先に出す。
   const destinations = categories
     .filter((c) => c.id !== material.categoryId)
-    .filter((c) => !categories.some((child) => child.parentId === c.id))
+    .filter(
+      (c) =>
+        c.layout === 'list' ||
+        !categories.some((child) => child.parentId === c.id),
+    )
 
   const labelFor = (category) => {
     const parent = categories.find((c) => c.id === category.parentId)

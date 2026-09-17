@@ -6,6 +6,7 @@ import { deleteCategory } from '../lib/categoryAdmin'
 import ThumbnailGrid from './ThumbnailGrid'
 import UploadModal from './UploadModal'
 import FolderModal from './FolderModal'
+import ListCategoryView from './ListCategoryView'
 import PinPad from './PinPad'
 
 export default function CategoryScreen({
@@ -28,11 +29,15 @@ export default function CategoryScreen({
   const children = categories.filter((c) => c.parentId === category.id)
   const hasChildren = children.length > 0
 
+  // layout: 'list' は薬剤情報のように品目が多いカテゴリ用の50音リスト表示。
+  // フォルダと資料を混ぜて並べるので、資料はいつでも直下に追加できる。
+  const isListLayout = category.layout === 'list'
+
   // フォルダはいつでも作れるようにする。直下に資料が残っているカテゴリでも
   // 最初の1個目を作れないと詰んでしまうため(以前ここを絞りすぎて詰んだ)。
   // 一方、下位フォルダができた後は資料を直下に置かせない(必ずどれかの
   // フォルダに入れてもらう)ので、資料の追加ボタンだけ隠す。
-  const canAddMaterial = !hasChildren
+  const canAddMaterial = isListLayout || !hasChildren
 
   const handleDeleteFolder = async (folder) => {
     if (!window.confirm(`フォルダ「${folder.name}」を削除しますか？`)) return
@@ -90,7 +95,18 @@ export default function CategoryScreen({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {hasChildren && (
+        {isListLayout && (
+          <ListCategoryView
+            categories={categories}
+            folders={children}
+            materials={materials}
+            editMode={isEditMode}
+            onOpenCategory={onOpenCategory}
+            onOpenMaterial={onOpenMaterial}
+          />
+        )}
+
+        {!isListLayout && hasChildren && (
           <div className="grid grid-cols-4 gap-3 p-3">
             {children.map((child) => (
               <div key={child.id} className="relative">
@@ -130,7 +146,7 @@ export default function CategoryScreen({
 
         {/* 下位フォルダがあっても、直下に資料が残っている場合は隠さず出す
             (フォルダ分けの途中でも資料が見えなくならないようにする)。 */}
-        {hasChildren && !loading && materials.length > 0 && (
+        {!isListLayout && hasChildren && !loading && materials.length > 0 && (
           <div className="border-t border-brand-brown/10">
             <ThumbnailGrid
               materials={materials}
@@ -140,7 +156,8 @@ export default function CategoryScreen({
           </div>
         )}
 
-        {!hasChildren &&
+        {!isListLayout &&
+          !hasChildren &&
           (loading ? (
             <p className="mt-16 text-center text-brand-ink/50">読み込み中...</p>
           ) : (
@@ -163,6 +180,7 @@ export default function CategoryScreen({
         <FolderModal
           parentId={category.id}
           siblings={children}
+          listMode={isListLayout}
           onClose={() => setShowFolderModal(false)}
         />
       )}
