@@ -31,6 +31,7 @@ export default function FolderModal({ parentId, siblings, listMode, onClose }) {
   const [mode, setMode] = useState('single') // single | bulk
   const [name, setName] = useState('')
   const [reading, setReading] = useState('')
+  const [group, setGroup] = useState('')
   const [bulkText, setBulkText] = useState('')
   const [icon, setIcon] = useState('📁')
   const [status, setStatus] = useState('idle') // idle | saving | error
@@ -50,6 +51,7 @@ export default function FolderModal({ parentId, siblings, listMode, onClose }) {
         await createCategory({
           name: name.trim(),
           reading: listMode ? reading.trim() : '',
+          group: listMode ? group.trim() : '',
           icon: listMode ? '' : icon,
           parentId,
           siblings,
@@ -130,6 +132,7 @@ export default function FolderModal({ parentId, siblings, listMode, onClose }) {
               </label>
 
               {listMode ? (
+                <>
                 <label className="mb-4 block">
                   <span className="mb-1 block text-sm text-brand-ink/70">
                     よみ（任意・漢字や英字の名前のときだけ）
@@ -142,6 +145,19 @@ export default function FolderModal({ parentId, siblings, listMode, onClose }) {
                     className="w-full rounded-lg border border-brand-brown/20 px-3 py-2 text-brand-ink"
                   />
                 </label>
+                <label className="mb-4 block">
+                  <span className="mb-1 block text-sm text-brand-ink/70">
+                    グループ（任意・一覧の最後に別枠でまとめたいとき）
+                  </span>
+                  <input
+                    type="text"
+                    value={group}
+                    onChange={(e) => setGroup(e.target.value)}
+                    placeholder="例：漢方薬"
+                    className="w-full rounded-lg border border-brand-brown/20 px-3 py-2 text-brand-ink"
+                  />
+                </label>
+                </>
               ) : (
                 <div className="mb-4">
                   <span className="mb-2 block text-sm text-brand-ink/70">
@@ -169,17 +185,20 @@ export default function FolderModal({ parentId, siblings, listMode, onClose }) {
           ) : (
             <label className="mb-4 block">
               <span className="mb-1 block text-sm text-brand-ink/70">
-                1行に1件。「名前」または「名前,よみ」の形で貼り付け
+                1行に1件。「名前」「名前,よみ」「名前,よみ,グループ」の形で貼り付け
               </span>
               <textarea
                 value={bulkText}
                 onChange={(e) => setBulkText(e.target.value)}
                 rows={12}
-                placeholder={'アモキシシリン\nフロセミド\n六君子湯,リックンシトウ'}
+                placeholder={
+                  'アモキシシリン\nフロセミド\n六君子湯,リックンシトウ\n四逆散,シギャクサン,漢方薬'
+                }
                 className="w-full rounded-lg border border-brand-brown/20 px-3 py-2 font-mono text-sm text-brand-ink"
               />
               <span className="mt-1 block text-xs text-brand-ink/50">
                 同じ名前が既にあるものは飛ばします。アイコンは付きません。
+                グループを付けたものは50音の行に混ざらず、一覧の最後にまとまります。
               </span>
             </label>
           )}

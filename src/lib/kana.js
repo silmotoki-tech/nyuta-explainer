@@ -55,3 +55,24 @@ export function groupByKanaRow(entries) {
     }))
     .filter((row) => row.items.length > 0)
 }
+
+// group を持つものは50音の行に混ぜず、名前付きの枠として一覧の最後にまとめる。
+// (例: 漢方薬。50音順に散らばると探しにくいものを別枠にするため)
+export function groupEntries(entries) {
+  const plain = entries.filter((entry) => !entry.group)
+  const named = entries.filter((entry) => entry.group)
+
+  const groupNames = [...new Set(named.map((entry) => entry.group))].sort(
+    (a, b) => a.localeCompare(b, 'ja'),
+  )
+
+  const namedRows = groupNames.map((name) => ({
+    key: `group:${name}`,
+    label: name,
+    items: named
+      .filter((entry) => entry.group === name)
+      .sort((a, b) => a.sortKey.localeCompare(b.sortKey, 'ja')),
+  }))
+
+  return [...groupByKanaRow(plain), ...namedRows]
+}

@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { deleteCategory } from '../lib/categoryAdmin'
 import { deleteMaterial } from '../lib/deleteMaterial'
-import { groupByKanaRow, sortKeyOf, toKatakana } from '../lib/kana'
+import { groupEntries, sortKeyOf, toKatakana } from '../lib/kana'
 import MoveMaterialModal from './MoveMaterialModal'
 
 // 薬剤情報のように品目が多く、アイコンより名前で探すカテゴリ用の表示。
@@ -28,6 +28,7 @@ export default function ListCategoryView({
       kind: 'folder',
       name: category.name,
       reading: category.reading,
+      group: category.group,
       source: category,
     })),
     ...materials.map((material) => ({
@@ -35,6 +36,7 @@ export default function ListCategoryView({
       kind: 'material',
       name: material.title,
       reading: material.reading,
+      group: material.group,
       source: material,
     })),
   ].map((entry) => ({ ...entry, sortKey: sortKeyOf(entry) }))
@@ -52,7 +54,7 @@ export default function ListCategoryView({
       })
     : entries
 
-  const rows = groupByKanaRow(matched)
+  const rows = groupEntries(matched)
 
   const handleDeleteFolder = async (folder) => {
     if (!window.confirm(`「${folder.name}」を削除しますか？`)) return

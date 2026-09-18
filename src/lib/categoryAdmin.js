@@ -16,6 +16,7 @@ export async function createCategory({
   name,
   icon,
   reading,
+  group,
   parentId,
   siblings = [],
 }) {
@@ -29,14 +30,17 @@ export async function createCategory({
     ...(icon ? { icon } : {}),
     // reading は50音順の並べ替え用。カタカナ名なら不要。
     ...(reading ? { reading } : {}),
+    // group を付けると50音の行に混ざらず、一覧の最後に別枠で並ぶ(例: 漢方薬)。
+    ...(group ? { group } : {}),
     order: maxOrder + 1,
     parentId,
   })
 }
 
 // 薬剤名のように数十件をまとめて登録したいとき用。1行1件で、
-// 「名前」または「名前,よみ」の形式を受け付ける(読点・タブ区切りも可)。
-// 漢字や英字の名前は「よみ」を入れないと50音順に正しく並ばない。
+// 「名前」「名前,よみ」「名前,よみ,グループ」の形式を受け付ける
+// (読点・タブ区切りも可)。漢字や英字の名前は「よみ」を入れないと
+// 50音順に正しく並ばない。グループを付けたものは一覧の最後に別枠で並ぶ。
 //
 // writeBatch で一度に書き込むので、途中まで作られて止まることがない。
 // (Firestoreのバッチ上限は500件。数百件を超えるなら分割が必要)
@@ -46,8 +50,10 @@ export async function createCategoriesBulk({ text, parentId, siblings = [] }) {
     .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
-      const [name, reading] = line.split(/[,，\t]/).map((s) => (s || '').trim())
-      return { name, reading: reading || '' }
+      const [name, reading, group] = line
+        .split(/[,，\t]/)
+        .map((s) => (s || '').trim())
+      return { name, reading: reading || '', group: group || '' }
     })
     .filter((entry) => entry.name)
 
@@ -72,6 +78,7 @@ export async function createCategoriesBulk({ text, parentId, siblings = [] }) {
     batch.set(doc(collection(db, 'categories')), {
       name: entry.name,
       ...(entry.reading ? { reading: entry.reading } : {}),
+      ...(entry.group ? { group: entry.group } : {}),
       order,
       parentId,
     })
