@@ -6,6 +6,7 @@ import HomeScreen from './components/HomeScreen'
 // 軽くするために遅延読み込みする。
 const CategoryScreen = lazy(() => import('./components/CategoryScreen'))
 const PdfViewer = lazy(() => import('./components/PdfViewer'))
+const TextViewer = lazy(() => import('./components/TextViewer'))
 
 function App() {
   // カテゴリは入れ子にできる(例: 診療資料 → 運動器 → 資料)。
@@ -34,7 +35,16 @@ function App() {
             />
           )}
 
-          {openMaterial && (
+          {/* 資料の種類で表示を切り替える。'text' は本文をそのまま持つ資料、
+              それ以外(既定の 'pdf')は従来どおりPDFビューアで開く。 */}
+          {openMaterial && openMaterial.type === 'text' && (
+            <TextViewer
+              material={openMaterial}
+              onClose={() => setOpenMaterial(null)}
+            />
+          )}
+
+          {openMaterial && openMaterial.type !== 'text' && (
             <PdfViewer
               material={openMaterial}
               onClose={() => setOpenMaterial(null)}

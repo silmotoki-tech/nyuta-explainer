@@ -6,6 +6,7 @@ import { deleteCategory } from '../lib/categoryAdmin'
 import ThumbnailGrid from './ThumbnailGrid'
 import UploadModal from './UploadModal'
 import FolderModal from './FolderModal'
+import TextMaterialModal from './TextMaterialModal'
 import ListCategoryView from './ListCategoryView'
 import PinPad from './PinPad'
 
@@ -21,6 +22,7 @@ export default function CategoryScreen({
   const [showPinPad, setShowPinPad] = useState(false)
   const [showUpload, setShowUpload] = useState(false)
   const [showFolderModal, setShowFolderModal] = useState(false)
+  const [showTextModal, setShowTextModal] = useState(false)
 
   // このカテゴリの下位フォルダ(例: 診療資料 → 運動器)。
   // Firestoreへのクエリは orderBy('order') だけに留めて(where と併用すると
@@ -77,10 +79,19 @@ export default function CategoryScreen({
           {isEditMode && canAddMaterial && (
             <button
               type="button"
+              onClick={() => setShowTextModal(true)}
+              className="rounded-full bg-brand-cream px-4 py-1.5 text-sm font-medium text-brand-ink"
+            >
+              ＋ テキスト
+            </button>
+          )}
+          {isEditMode && canAddMaterial && (
+            <button
+              type="button"
               onClick={() => setShowUpload(true)}
               className="rounded-full bg-brand-green px-4 py-1.5 text-sm font-medium text-white"
             >
-              ＋ 資料を追加
+              ＋ PDFを追加
             </button>
           )}
           <button
@@ -174,6 +185,13 @@ export default function CategoryScreen({
         <UploadModal
           categoryId={category.id}
           onClose={() => setShowUpload(false)}
+        />
+      )}
+      {showTextModal && (
+        <TextMaterialModal
+          categoryId={category.id}
+          existingTitles={materials.map((m) => m.title)}
+          onClose={() => setShowTextModal(false)}
         />
       )}
       {showFolderModal && (

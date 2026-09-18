@@ -3,10 +3,11 @@ import { deleteObject, ref } from 'firebase/storage'
 import { db, storage } from '../firebase'
 
 export async function deleteMaterial(material) {
-  await Promise.allSettled([
-    deleteObject(ref(storage, material.storagePath)),
-    deleteObject(ref(storage, material.thumbnailPath)),
-  ])
+  // テキスト資料はStorageにファイルを持たないので、あるものだけ消す。
+  const paths = [material.storagePath, material.thumbnailPath].filter(Boolean)
+  await Promise.allSettled(
+    paths.map((path) => deleteObject(ref(storage, path))),
+  )
   await deleteDoc(
     doc(db, 'categories', material.categoryId, 'materials', material.id),
   )
